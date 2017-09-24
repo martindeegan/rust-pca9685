@@ -1,6 +1,18 @@
 [package]
 name = "pca9685"
 version = "0.1.0"
-authors = ["martindeegan"]
+authors = ["martindeegan <mddeegan@gmail.com>"]
+description = "I2C driver for the PCA9685 PWM controller."
+license = "MIT/Apache-2.0"
+
+[lib]
+name = "pca9685"
+path = "src/lib.rs"
+
+[[bin]]
+name = "pca9685bin"
+path = "src/main.rs"
 
 [dependencies]
+i2cdev = "0.3.1"
+byteorder = "1.1.0"
