@@ -1,12 +1,17 @@
+#![cfg(target_os = "linux")]
+
 extern crate pca9685;
+extern crate linux_embedded_hal;
+
+use linux_embedded_hal::{I2cdev, Delay};
 
 use pca9685::*;
 use std::time::{Instant,Duration};
 use std::thread::sleep_ms;
 
 fn main() {
-	let device = LinuxI2CDevice::new("/dev/i2c-1", 0x40).unwrap();
-	let mut pca9685 = PCA9685::new(device, 50).unwrap();
+	let device = I2cdev::new("/dev/i2c-1", 0x40).unwrap();
+	let mut pca9685 = PCA9685::new(device, Delay::new(), 50).unwrap();
 	pca9685.set_frequency(100);
 	pca9685.set_all_duty_cycle(0);
 
