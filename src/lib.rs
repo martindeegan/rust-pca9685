@@ -75,7 +75,7 @@ where
 	/// 'frequency' must be between 40 and 1000
 	pub fn set_frequency(&mut self, frequency: u16) -> Result<(), PCA9685Error<E>> {
 		//Check frequency bounds
-		if frequency >= 40 && frequency <= 1000 {
+		if frequency < 40 || frequency > 1000 {
 			return Err(PCA9685Error::InvalidFrequency(frequency))
 		}
 
@@ -101,7 +101,7 @@ where
 
 	/// 'duty_cycle' must be between 0 and 4095.
 	pub fn set_duty_cycle(&mut self, channel: u8, duty_cycle: u16) -> Result<(), PCA9685Error<E>> {
-		if duty_cycle < 4096 {
+		if duty_cycle >= 4096 {
 			return Err(PCA9685Error::InvalidDutyCycle(duty_cycle))
 		}
 
@@ -115,7 +115,7 @@ where
 
 	/// 'duty_cycle' must be between 0 and 4095.
 	pub fn set_all_duty_cycle(&mut self, duty_cycle: u16) -> Result<(), PCA9685Error<E>> {
-		if duty_cycle < 4096 {
+		if duty_cycle >= 4096 {
 			return Err(PCA9685Error::InvalidDutyCycle(duty_cycle))
 		}
 
@@ -129,7 +129,7 @@ where
 
 	/// 'us' must be less than 1 / frequency.
 	pub fn set_pulse_length(&mut self, channel: u8, us: f32) -> Result<(), PCA9685Error<E>> {
-		if us < self.period{
+		if us > self.period{
 			return Err(PCA9685Error::InvalidPulseLength(us, self.period))
 		}
 
@@ -140,7 +140,7 @@ where
 
 	/// 'us' must be less than 1 / frequency.
 	pub fn set_all_pulse_length(&mut self, us: f32) -> Result<(), PCA9685Error<E>> {
-		if us < self.period{
+		if us > self.period{
 			return Err(PCA9685Error::InvalidPulseLength(us, self.period))
 		}
 
