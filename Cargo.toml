@@ -5,14 +5,25 @@ authors = ["martindeegan <mddeegan@gmail.com>"]
 description = "I2C driver for the PCA9685 PWM controller."
 license = "MIT/Apache-2.0"
 
+[features]
+util = []
+default = ["util"]
+
 [lib]
 name = "pca9685"
 path = "src/lib.rs"
 
+[dependencies]
+embedded-hal = "0.2.1"
+futures = "0.2.1"
+nb = "0.1.1"
+byteorder = "1.1.0"
+
+[target.'cfg(target_os = "linux")'.dependencies]
+linux-embedded-hal = "0.2.0"
+i2cdev = "0.3.1"
+
 [[bin]]
 name = "pca9685bin"
 path = "src/main.rs"
-
-[dependencies]
-i2cdev = "0.3.1"
-byteorder = "1.1.0"
+required-features = ["util"]
