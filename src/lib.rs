@@ -30,7 +30,9 @@ pub struct PCA9685 {
 
 impl PCA9685 {
 	pub fn new(device: LinuxI2CDevice, frequency: u16) -> Result<PCA9685, LinuxI2CError> {
-		let mut mode1 = 0x01;
+		// Setting auto-increment lets us write independent PWM values to all
+		// channels using only one i2c write.
+		let mut mode1 = 0x01 | AUTO_INCREMENT;
 		let mut pca9685 = PCA9685{ device: device, mode: 0x01, frequency: 0.0, period: 0.0, time_per_tick: 0.0 };
 		pca9685.set_all_duty_cycle(0);
 		pca9685.device.smbus_write_byte_data(MODE_2_REG, 0x04);
@@ -70,6 +72,27 @@ impl PCA9685 {
 		try!(self.device.smbus_write_byte_data(LED0_ON_H+4*channel, 0));
 		try!(self.device.smbus_write_byte_data(LED0_OFF_L+4*channel, (duty_cycle & 0xFF) as u8));
 		try!(self.device.smbus_write_byte_data(LED0_OFF_H+4*channel, (duty_cycle >> 8) as u8));
+		Ok(())
+	}
+
+	/// Writes PWM values to channels in one i2c write request.
+	///
+	/// This improves performance by reducing i2c communication round trips.
+	/// 'duty_cycle' must have between 0 and 16 items, inclusive.
+	/// Element i of 'duty_cycles' sets the PWM of the i-th channel accordingly.
+	/// Each element of 'duty_cycles' must be between 0 and 4095, inclusive.
+	pub fn set_duty_cycles_batch(&mut self, duty_cycles: &[u16]) -> Result<(), LinuxI2CError> {
+		assert!(duty_cycles.len() <= 16);
+		let mut data = Vec::with_capacity(4 * duty_cycles.len() + 1);
+		data.push(LED0_ON_L);
+		// Populate PWM duty cycles for each
+		for channel in 0..duty_cycles.len() {
+			data.push(0);
+			data.push(0);
+			data.push((duty_cycles[channel] & 0xff) as u8);
+			data.push((duty_cycles[channel] >> 8) as u8);
+		}
+		self.device.write(&data)?;
 		Ok(())
 	}
 
